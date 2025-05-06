@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,109 +8,145 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* gray-100 */
+            background-color: #f3f4f6;
+            /* gray-100 */
         }
+
         .input-error {
-            border-color: #EF4444; /* red-500 */
+            border-color: #EF4444;
+            /* red-500 */
             box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
         }
+
         .input-success {
-            border-color: #22C55E; /* green-500 */
+            border-color: #22C55E;
+            /* green-500 */
             box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
         }
+
         .output-value {
-            font-weight: 600; /* semibold */
-            color: #4F46E5; /* indigo-600 */
+            font-weight: 600;
+            /* semibold */
+            color: #4F46E5;
+            /* indigo-600 */
         }
+
         label {
             display: block;
-            margin-bottom: 0.25rem; /* mb-1 */
-            font-weight: 500; /* medium */
-            color: #374151; /* gray-700 */
+            margin-bottom: 0.25rem;
+            /* mb-1 */
+            font-weight: 500;
+            /* medium */
+            color: #374151;
+            /* gray-700 */
         }
-        input[type="number"], select {
-            width: 100%;
-            padding: 0.5rem 0.75rem; /* px-3 py-2 */
+
+        input[type="number"]
+         {
+            padding: 0.5rem 0.75rem;
+            width: 10ch;
+            /* px-3 py-2 */
             border-width: 1px;
-            border-color: #D1D5DB; /* gray-300 */
-            border-radius: 0.375rem; /* rounded-md */
-            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            border-color: #D1D5DB;
+            /* gray-300 */
+            border-radius: 0.375rem;
+            /* rounded-md */
+            box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            /* shadow-sm */
             background-color: white;
         }
-        input[type="number"]:focus, select:focus {
+
+        input[type="number"]:focus
+         {
             outline: 2px solid transparent;
             outline-offset: 2px;
-            border-color: #6366F1; /* indigo-500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* ring-indigo-500 */
+            border-color: #6366F1;
+            /* indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+            /* ring-indigo-500 */
         }
+
         /* .panel class is now defined with responsive padding */
         .panel {
             background-color: white;
             /* Default padding for small screens */
-            padding: 1rem; /* p-4 */
-            border-radius: 0.5rem; /* rounded-lg */
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); /* shadow-md */
+            padding: 1rem;
+            /* p-4 */
+            border-radius: 0.5rem;
+            /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* shadow-md */
         }
 
         .main-container {
-            max-width: 64rem; /* max-w-3xl, increased for two columns */
+            max-width: 64rem;
+            /* max-w-3xl, increased for two columns */
             margin-left: auto;
             margin-right: auto;
-            padding: 1rem; /* p-4 */
+            padding: 1rem;
+            /* p-4 */
         }
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="main-container">
-
-        <div class="calculator-layout">
-            <div class="input-section-wrapper">
-                    <div>
-                        <label for="presetSelector">Load Preset:</label>
-                        <select id="presetSelector" name="presetSelector"></select><button id="savePresetButton">Save Current as Preset</button>
-                    <p id="savePresetMessage" class="mt-2 text-xs text-gray-500"></p>
-                    </div>
-                <form id="productionForm" class="panel space-y-3 md:space-y-6">
-                    <table>
-                        <tr>
-                            <th>Line Speed:</th>
-                            <td><input type="number" id="lineSpeed" name="lineSpeed" min="400" step="any" required placeholder="e.g., 952.6"><p id="lineSpeedValidation"></p></td>
-                        </tr>
-                        <tr>
-                            <th>Roll Length:</th>
-                            <td><input type="number" id="rollLength" name="rollLength" min="1000" step="any" required value="1500"><p id="rollLengthValidation"></p></td>
-                        </tr>
-                        <tr> 
-                            <th>Rolls per Doff:</th>
-                            <td><input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="5"><p id="rollsPerDoffValidation"></p></td>
-                        </tr>
-                        <tr>
-                            <th>Rolls per Pallet:</th>
-                            <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="16" step="1" required placeholder="e.g., 192"><p id="rollsPerPalletValidation"></p></td>
-                        </tr>
-                    </table>
-
-            </form>
-            </div>
-                <div class="output-section panel bg-indigo-50">
-                    <table>
-                        <tr>
-                            <th>Doff Time:</th>
-                            <td id="doffTimeOutput">-- min -- sec</td>
-                        </tr>
-                       <tr>
-                            <th>Roll Time:</th>
-                            <td id="rollTimeOutput">-- min -- sec</td>
-                        </tr>
-                       <tr>
-                            <th>Pallet Time:</th>
-                            <td id="palletTimeOutput">-- min -- sec</td>
-                        </tr>
-                    </table>
-                    <p id="overallValidationMessage" class="mt-2 md:mt-3 text-sm text-red-600 font-medium"></p>
-                </div>
+        <table>
+            <tr>
+                <th>Doff Time:</th>
+                <td id="doffTimeOutput">-- min -- sec</td>
+            </tr>
+            <tr>
+                <th>Roll Time:</th>
+                <td id="rollTimeOutput">-- min -- sec</td>
+            </tr>
+            <tr>
+                <th>Pallet Time:</th>
+                <td id="palletTimeOutput">-- min -- sec</td>
+            </tr>
+        </table>
+        <p id="overallValidationMessage"></p>
+        <div>
+            <label for="presetSelector">Load Preset:</label>
+            <select id="presetSelector" name="presetSelector"></select><button id="savePresetButton">Save Current as
+                Preset</button>
+            <p id="savePresetMessage" class="mt-2 text-xdds text-gray-500"></p>
         </div>
+        <form id="productionForm">
+            <table>
+                <tr>
+                    <th>Line Speed:</th>
+                    <td><input type="number" id="lineSpeed" name="lineSpeed" min="400" step="any" required
+                            placeholder="e.g., 952.6">
+                        <p id="lineSpeedValidation"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Roll Length:</th>
+                    <td><input type="number" id="rollLength" name="rollLength" min="1000" step="any" required
+                            value="1500">
+                        <p id="rollLengthValidation"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Rolls per Doff:</th>
+                    <td><input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required
+                            value="5">
+                        <p id="rollsPerDoffValidation"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Rolls per Pallet:</th>
+                    <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="16" step="1" required
+                            placeholder="e.g., 192">
+                        <p id="rollsPerPalletValidation"></p>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+    </div>
     </div>
 
     <script>
@@ -140,10 +177,10 @@
             { name: "1500ft, 5/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 256 },
             { name: "1500ft, 6/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 192 },
             { name: "1500ft, 6/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 256 },
-            { name: "5000ft, 5/doff, 40/pallet",  rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "6000ft, 5/doff, 20/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 20 },
-            { name: "7500ft, 5/doff, 20/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 20 },
-            { name: "9000ft, 5/doff, 20/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 20 }
+            { name: "5000ft, 5/doff, 40/pallet", rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "6000ft, 5/doff, 20/pallet", rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 20 },
+            { name: "7500ft, 5/doff, 20/pallet", rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 20 },
+            { name: "9000ft, 5/doff, 20/pallet", rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 20 }
         ];
         let currentPresets = [];
 
@@ -186,8 +223,8 @@
         function applySelectedPreset() {
             const selectedIndex = presetSelector.value;
             if (selectedIndex === "" && presetSelector.manuallyCleared) {
-                 presetSelector.manuallyCleared = false; 
-                 return;
+                presetSelector.manuallyCleared = false;
+                return;
             }
             if (selectedIndex === "") {
                 calculateAndDisplayTimes();
@@ -199,10 +236,10 @@
                 rollLengthInput.value = selectedPreset.rollLength;
                 rollsPerDoffInput.value = selectedPreset.rollsPerDoff;
                 rollsPerPalletInput.value = selectedPreset.rollsPerPallet;
-                calculateAndDisplayTimes(); 
+                calculateAndDisplayTimes();
             }
         }
-        
+
         function isCurrentCombinationValidForSaving() {
             const rl = parseFloat(rollLengthInput.value);
             const rpd = parseInt(rollsPerDoffInput.value, 10);
@@ -211,7 +248,7 @@
             if (isNaN(rl) || rl <= 0) return false;
             if (isNaN(rpd) || rpd < parseInt(rollsPerDoffInput.min, 10) || rpd > parseInt(rollsPerDoffInput.max, 10)) return false;
             if (isNaN(rpp) || rpp <= 0) return false;
-            
+
             return true;
         }
 
@@ -222,7 +259,7 @@
 
             if (isNaN(rl) || isNaN(rpd) || isNaN(rpp)) return -1;
 
-            return currentPresets.findIndex(preset => 
+            return currentPresets.findIndex(preset =>
                 preset.rollLength === rl &&
                 preset.rollsPerDoff === rpd &&
                 preset.rollsPerPallet === rpp
@@ -244,8 +281,8 @@
                     if (!isValidForSaving) {
                         // User might be typing, don't clear selector yet
                     } else {
-                         presetSelector.value = ""; 
-                         presetSelector.manuallyCleared = true; 
+                        presetSelector.value = "";
+                        presetSelector.manuallyCleared = true;
                     }
                 }
 
@@ -260,7 +297,7 @@
         }
 
         function handleSavePreset() {
-            if (savePresetButton.disabled) return; 
+            if (savePresetButton.disabled) return;
 
             const rollLength = parseFloat(rollLengthInput.value);
             const rollsPerDoff = parseInt(rollsPerDoffInput.value, 10);
@@ -268,7 +305,7 @@
 
             let presetName = prompt("Enter a name for this preset:", `Custom: ${rollLength}ft, ${rollsPerDoff}/doff, ${rollsPerPallet}/pallet`);
             if (presetName === null || presetName.trim() === "") {
-                return; 
+                return;
             }
             presetName = presetName.trim();
 
@@ -281,10 +318,10 @@
 
             currentPresets.push(newPreset);
             savePresetsToStorage();
-            populatePresetDropdown(); 
-            presetSelector.value = currentPresets.length - 1; 
-            
-            updatePresetUIState(); 
+            populatePresetDropdown();
+            presetSelector.value = currentPresets.length - 1;
+
+            updatePresetUIState();
             alert(`Preset "${presetName}" saved!`);
         }
 
@@ -354,7 +391,7 @@
             const isRPPValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
             const isLSValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
 
-            updatePresetUIState(); 
+            updatePresetUIState();
 
             if (!isRLValid || !isRPDValid || !isRPPValid || !isLSValid) {
                 doffTimeOutput.textContent = "-- min -- sec";
@@ -383,7 +420,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadPresetsFromStorage();
             populatePresetDropdown();
-            calculateAndDisplayTimes(); 
+            calculateAndDisplayTimes();
         });
 
         presetSelector.addEventListener('change', applySelectedPreset);
@@ -395,4 +432,5 @@
 
     </script>
 </body>
+
 </html>
