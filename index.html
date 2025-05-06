@@ -6,9 +6,9 @@
     <title>Production Time Calculator with Presets</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for better visual feedback and layout */
         body {
-            font-family: 'Inter', sans-serif; /* Tailwind's default sans-serif font */
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* gray-100 */
         }
         .input-error {
             border-color: #EF4444; /* red-500 */
@@ -22,10 +22,11 @@
             font-weight: 600; /* semibold */
             color: #4F46E5; /* indigo-600 */
         }
-        /* Ensure labels and inputs are nicely aligned */
         label {
             display: block;
             margin-bottom: 0.25rem; /* mb-1 */
+            font-weight: 500; /* medium */
+            color: #374151; /* gray-700 */
         }
         input[type="number"], select {
             width: 100%;
@@ -34,92 +35,107 @@
             border-color: #D1D5DB; /* gray-300 */
             border-radius: 0.375rem; /* rounded-md */
             box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-            background-color: white; /* Ensure select has white background */
+            background-color: white;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
         input[type="number"]:focus, select:focus {
             outline: 2px solid transparent;
             outline-offset: 2px;
             border-color: #6366F1; /* indigo-500 */
-            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25); /* ring-indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* ring-indigo-500 */
         }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr; /* Single column on small screens */
-            gap: 1.5rem; /* gap-6 */
+        .panel {
+            background-color: white;
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); /* shadow-md */
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem; /* py-2 px-4 */
+            border-width: 1px;
+            border-color: transparent;
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: 500; /* medium */
+            text-sm;
+            color: white;
+            background-color: #4F46E5; /* indigo-600 */
+            transition: background-color 0.15s ease-in-out;
+        }
+        .btn:hover {
+            background-color: #4338CA; /* indigo-700 */
+        }
+        .btn:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* ring-2 ring-offset-2 ring-indigo-500 */
+        }
+        .main-container {
+            max-width: 64rem; /* max-w-3xl, increased for two columns */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1rem; /* p-4 */
         }
         @media (min-width: 768px) { /* md breakpoint */
-            .grid-container {
-                grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens and up */
+            .calculator-layout {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* Two equal columns */
+                gap: 1.5rem; /* gap-6 */
             }
-        }
-        /* Styling for the preset section */
-        .preset-section {
-            margin-bottom: 1.5rem; /* mb-6 */
-            padding: 1rem; /* p-4 */
-            background-color: #f9fafb; /* gray-50 */
-            border: 1px solid #e5e7eb; /* gray-200 */
-            border-radius: 0.5rem; /* rounded-lg */
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen">
 
-    <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">Production Time Calculator</h1>
+    <div class="main-container">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center">Production Time Calculator</h1>
 
-        <div class="preset-section">
-            <label for="presetSelector" class="block text-sm font-medium text-gray-700 mb-1">
-                Load Preset:
-            </label>
-            <select id="presetSelector" name="presetSelector" class="transition-all duration-150 ease-in-out">
-                <option value="">-- Select a Preset --</option>
-                </select>
-        </div>
-
-        <form id="productionForm" class="space-y-6">
-            <div class="grid-container">
-                <div class="space-y-4 p-4 border border-gray-200 rounded-lg">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Input Parameters</h2>
+        <div class="calculator-layout">
+            <div class="input-section-wrapper">
+                <form id="productionForm" class="panel space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Input Parameters</h2>
                     <div>
-                        <label for="rollLength" class="text-sm font-medium text-gray-700">
-                            Roll Length (feet):
-                        </label>
-                        <input type="number" id="rollLength" name="rollLength" min="1" step="any" required placeholder="e.g., 1000" class="transition-all duration-150 ease-in-out">
+                        <label for="rollLength">Roll Length (feet):</label>
+                        <input type="number" id="rollLength" name="rollLength" min="1" step="any" required placeholder="e.g., 1000">
                         <p id="rollLengthValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
-
                     <div>
-                        <label for="rollsPerDoff" class="text-sm font-medium text-gray-700">
-                            Rolls per Doff (2-8):
-                        </label>
-                        <input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="2" class="transition-all duration-150 ease-in-out">
+                        <label for="rollsPerDoff">Rolls per Doff (2-8):</label>
+                        <input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="2">
                         <p id="rollsPerDoffValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
-                    
                     <div>
-                        <label for="rollsPerPallet" class="text-sm font-medium text-gray-700">
-                            Rolls per Pallet:
-                        </label>
-                        <input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 20" class="transition-all duration-150 ease-in-out">
+                        <label for="rollsPerPallet">Rolls per Pallet:</label>
+                        <input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 20">
                         <p id="rollsPerPalletValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
-
                     <div>
-                        <label for="lineSpeed" class="text-sm font-medium text-gray-700">
-                            Line Speed (feet per minute):
-                        </label>
-                        <input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 500" class="transition-all duration-150 ease-in-out">
+                        <label for="lineSpeed">Line Speed (feet per minute):</label>
+                        <input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 500">
                         <p id="lineSpeedValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
+                </form>
+            </div>
+
+            <div class="presets-output-wrapper space-y-6">
+                <div class="preset-section panel">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Presets</h2>
+                    <div>
+                        <label for="presetSelector">Load Preset:</label>
+                        <select id="presetSelector" name="presetSelector" class="mb-3"></select>
+                    </div>
+                    <button id="savePresetButton" class="btn w-full">Save Current as Preset</button>
                 </div>
 
-                <div class="space-y-4 p-4 border border-gray-200 rounded-lg bg-indigo-50">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Calculated Times</h2>
-                    <div class="p-3 bg-white rounded-md shadow-sm">
+                <div class="output-section panel bg-indigo-50">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Calculated Times</h2>
+                    <div class="p-3 bg-white rounded-md shadow-sm mb-3">
                         <p class="text-sm font-medium text-gray-600">Doff Time (Roll Length / Line Speed):</p>
                         <p id="doffTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
-                    <div class="p-3 bg-white rounded-md shadow-sm">
+                    <div class="p-3 bg-white rounded-md shadow-sm mb-3">
                         <p class="text-sm font-medium text-gray-600">Roll Time (Doff Time / Rolls per Doff):</p>
                         <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
@@ -127,28 +143,16 @@
                         <p class="text-sm font-medium text-gray-600">Pallet Time (Roll Time * Rolls per Pallet):</p>
                         <p id="palletTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
-                    <p id="overallValidationMessage" class="mt-2 text-sm text-red-600 font-medium"></p>
+                    <p id="overallValidationMessage" class="mt-3 text-sm text-red-600 font-medium"></p>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        // Preset Data
-        const presets = [
-            { name: "1500ft, 5/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 192 },
-            { name: "2000ft, 5/doff, 192/pallet", rollLength: 2000, rollsPerDoff: 5, rollsPerPallet: 192 },
-            { name: "1500ft, 5/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 256 },
-            { name: "1500ft, 6/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 192 },
-            { name: "1500ft, 6/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 256 },
-            { name: "5000ft, 5/doff, 40/pallet",  rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "6000ft, 5/doff, 40/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "7500ft, 5/doff, 40/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "9000ft, 5/doff, 40/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 40 }
-        ];
-
-        // Get references to all input and output elements
+        // --- DOM Element References ---
         const presetSelector = document.getElementById('presetSelector');
+        const savePresetButton = document.getElementById('savePresetButton');
         const rollsPerDoffInput = document.getElementById('rollsPerDoff');
         const rollLengthInput = document.getElementById('rollLength');
         const lineSpeedInput = document.getElementById('lineSpeed');
@@ -160,45 +164,121 @@
         const rollsPerPalletValidationMsg = document.getElementById('rollsPerPalletValidation');
         const overallValidationMessage = document.getElementById('overallValidationMessage');
 
-        // Output elements
-        const rollTimeOutput = document.getElementById('rollTimeOutput'); 
-        const doffTimeOutput = document.getElementById('doffTimeOutput'); 
+        const rollTimeOutput = document.getElementById('rollTimeOutput');
+        const doffTimeOutput = document.getElementById('doffTimeOutput');
         const palletTimeOutput = document.getElementById('palletTimeOutput');
 
-        // Populate Preset Dropdown
-        function populatePresets() {
-            presets.forEach((preset, index) => {
+        // --- Preset Configuration ---
+        const PRESET_STORAGE_KEY = 'productionCalculatorPresets';
+        const initialPresets = [
+            { name: "1500ft, 5/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 192 },
+            { name: "2000ft, 5/doff, 192/pallet", rollLength: 2000, rollsPerDoff: 5, rollsPerPallet: 192 },
+            { name: "1500ft, 5/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 256 },
+            { name: "1500ft, 6/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 192 },
+            { name: "1500ft, 6/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 256 },
+            { name: "5000ft, 5/doff, 40/pallet",  rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "6000ft, 5/doff, 40/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "7500ft, 5/doff, 40/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "9000ft, 5/doff, 40/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 40 }
+        ];
+        let currentPresets = []; // This will hold presets, loaded from storage or defaults
+
+        // --- Preset Management Functions ---
+        function loadPresetsFromStorage() {
+            const storedPresets = localStorage.getItem(PRESET_STORAGE_KEY);
+            if (storedPresets) {
+                try {
+                    currentPresets = JSON.parse(storedPresets);
+                } catch (e) {
+                    console.error("Error parsing presets from localStorage:", e);
+                    currentPresets = [...initialPresets]; // Fallback to initial
+                    savePresetsToStorage();
+                }
+            } else {
+                currentPresets = [...initialPresets]; // Use a copy of initial presets
+                savePresetsToStorage();
+            }
+        }
+
+        function savePresetsToStorage() {
+            try {
+                localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(currentPresets));
+            } catch (e) {
+                console.error("Error saving presets to localStorage:", e);
+                // Potentially alert user if storage is full or disabled
+                overallValidationMessage.textContent = "Could not save presets. Browser storage might be full or disabled.";
+            }
+        }
+
+        function populatePresetDropdown() {
+            presetSelector.innerHTML = '<option value="">-- Select a Preset --</option>'; // Clear existing options
+            currentPresets.forEach((preset, index) => {
                 const option = document.createElement('option');
-                option.value = index; // Use index as value for easy lookup
+                option.value = index;
                 option.textContent = preset.name;
                 presetSelector.appendChild(option);
             });
         }
 
-        // Handle Preset Selection
-        function applyPreset() {
+        function applySelectedPreset() {
             const selectedIndex = presetSelector.value;
-            if (selectedIndex === "") { // "-- Select a Preset --" chosen
-                // Optionally clear fields or do nothing
-                // For now, do nothing, let user manually input or pick another preset
-                return;
-            }
+            if (selectedIndex === "") return;
 
-            const selectedPreset = presets[parseInt(selectedIndex, 10)];
+            const selectedPreset = currentPresets[parseInt(selectedIndex, 10)];
             if (selectedPreset) {
                 rollLengthInput.value = selectedPreset.rollLength;
                 rollsPerDoffInput.value = selectedPreset.rollsPerDoff;
                 rollsPerPalletInput.value = selectedPreset.rollsPerPallet;
-
-                // Trigger calculation and validation after applying preset
-                calculateAndDisplayTimes();
+                calculateAndDisplayTimes(); // Recalculate after applying
             }
         }
 
+        function handleSavePreset() {
+            const rollLength = parseFloat(rollLengthInput.value);
+            const rollsPerDoff = parseInt(rollsPerDoffInput.value, 10);
+            const rollsPerPallet = parseInt(rollsPerPalletInput.value, 10);
 
-        // Helper function to format time in minutes and seconds
+            // Validate values before saving
+            if (isNaN(rollLength) || rollLength <= 0) {
+                alert("Please enter a valid Roll Length (must be > 0).");
+                rollLengthInput.focus();
+                return;
+            }
+            if (isNaN(rollsPerDoff) || rollsPerDoff < parseInt(rollsPerDoffInput.min,10) || rollsPerDoff > parseInt(rollsPerDoffInput.max,10) ) {
+                 alert(`Please enter a valid Rolls per Doff (between ${rollsPerDoffInput.min} and ${rollsPerDoffInput.max}).`);
+                rollsPerDoffInput.focus();
+                return;
+            }
+            if (isNaN(rollsPerPallet) || rollsPerPallet <= 0) {
+                alert("Please enter a valid Rolls per Pallet (must be > 0).");
+                rollsPerPalletInput.focus();
+                return;
+            }
+
+            let presetName = prompt("Enter a name for this preset:", `Custom: ${rollLength}ft, ${rollsPerDoff}/doff, ${rollsPerPallet}/pallet`);
+            if (presetName === null || presetName.trim() === "") {
+                // User cancelled or entered empty name
+                return;
+            }
+            presetName = presetName.trim();
+
+            const newPreset = {
+                name: presetName,
+                rollLength: rollLength,
+                rollsPerDoff: rollsPerDoff,
+                rollsPerPallet: rollsPerPallet
+            };
+
+            currentPresets.push(newPreset);
+            savePresetsToStorage();
+            populatePresetDropdown();
+            presetSelector.value = currentPresets.length - 1; // Select the newly added preset
+            alert(`Preset "${presetName}" saved!`);
+        }
+
+        // --- Calculation and Validation Functions ---
         function formatTime(totalMinutes) {
-            if (isNaN(totalMinutes) || totalMinutes < 0 || !isFinite(totalMinutes)) { 
+            if (isNaN(totalMinutes) || totalMinutes < 0 || !isFinite(totalMinutes)) {
                 return "-- min -- sec";
             }
             const minutes = Math.floor(totalMinutes);
@@ -206,109 +286,90 @@
             return `${minutes} min ${seconds < 10 ? '0' : ''}${seconds} sec`;
         }
 
-        // Helper function to validate a single input
-        function validateSingleInput(inputElement, validationMsgElement, min, max, isInteger = false, name = "Value") {
-            inputElement.classList.remove('input-error', 'input-success');
-            validationMsgElement.textContent = '';
-            validationMsgElement.classList.remove('text-red-500', 'text-green-500');
+        function validateSingleInput(inputEl, msgEl, min, max, isInt = false, name = "Value") {
+            inputEl.classList.remove('input-error', 'input-success');
+            msgEl.textContent = '';
+            msgEl.classList.remove('text-red-500', 'text-green-500');
 
-            const valueStr = inputElement.value;
-            if (valueStr === '') {
-                validationMsgElement.textContent = `${name} is required.`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            const valStr = inputEl.value;
+            if (valStr === '') {
+                msgEl.textContent = `${name} is required.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
+            const valNum = parseFloat(valStr);
 
-            const value = parseFloat(valueStr);
-
-            if (isNaN(value)) {
-                validationMsgElement.textContent = `Please enter a valid number for ${name}.`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            if (isNaN(valNum)) {
+                msgEl.textContent = `Please enter a valid number for ${name}.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
-
-            if (isInteger && !Number.isInteger(value)) {
-                validationMsgElement.textContent = `${name} must be a whole number.`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            if (isInt && !Number.isInteger(valNum)) {
+                msgEl.textContent = `${name} must be a whole number.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
-            
-            if ((name === "Line Speed" || name === "Rolls per Doff") && value === 0) {
-                 validationMsgElement.textContent = `${name} cannot be zero (used in division).`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            if ((name === "Line Speed" || name === "Rolls per Doff") && valNum === 0) {
+                msgEl.textContent = `${name} cannot be zero.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
-
-            if (min !== null && value < min) {
-                validationMsgElement.textContent = `${name} must be at least ${min}.`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            if (min !== null && valNum < min) {
+                msgEl.textContent = `${name} must be at least ${min}.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
-
-            if (max !== null && value > max) {
-                validationMsgElement.textContent = `${name} must be no more than ${max}.`;
-                validationMsgElement.classList.add('text-red-500');
-                inputElement.classList.add('input-error');
+            if (max !== null && valNum > max) {
+                msgEl.textContent = `${name} must be no more than ${max}.`;
+                msgEl.classList.add('text-red-500');
+                inputEl.classList.add('input-error');
                 return false;
             }
-            
-            inputElement.classList.add('input-success');
-            validationMsgElement.textContent = '✓';
-            validationMsgElement.classList.add('text-green-500');
+            inputEl.classList.add('input-success');
+            msgEl.textContent = '✓';
+            msgEl.classList.add('text-green-500');
             return true;
         }
 
-
-        // Function to perform all calculations and update the UI
         function calculateAndDisplayTimes() {
-            const isRollLengthValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
-            const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
-            const isRollsPerPalletValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
-            const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            const isRLValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
+            const isRPDValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
+            const isRPPValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
+            const isLSValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
 
-
-            if (!isRollsPerDoffValid || !isRollLengthValid || !isLineSpeedValid || !isRollsPerPalletValid) {
-                rollTimeOutput.textContent = "-- min -- sec";
+            if (!isRLValid || !isRPDValid || !isRPPValid || !isLSValid) {
                 doffTimeOutput.textContent = "-- min -- sec";
+                rollTimeOutput.textContent = "-- min -- sec";
                 palletTimeOutput.textContent = "-- min -- sec";
                 overallValidationMessage.textContent = "Please correct the errors in the input fields.";
-                return; 
+                return;
             }
             overallValidationMessage.textContent = "";
 
+            const rl = parseFloat(rollLengthInput.value);
+            const rpd = parseFloat(rollsPerDoffInput.value);
+            const ls = parseFloat(lineSpeedInput.value);
+            const rpp = parseFloat(rollsPerPalletInput.value);
 
-            // Get values from input fields
-            const rollsPerDoff = parseFloat(rollsPerDoffInput.value);
-            const rollLength = parseFloat(rollLengthInput.value);
-            const lineSpeed = parseFloat(lineSpeedInput.value);
-            const rollsPerPallet = parseFloat(rollsPerPalletInput.value);
+            const doffTimeMins = rl / ls;
+            const rollTimeMins = doffTimeMins / rpd;
+            const palletTimeMins = rollTimeMins * rpp;
 
-            // Perform calculations 
-            let calculatedDoffTimeMinutes = rollLength / lineSpeed;
-            let calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
-            const calculatedPalletTimeMinutes = calculatedRollTimeMinutes * rollsPerPallet;
-
-            // Update the display
-            doffTimeOutput.textContent = formatTime(calculatedDoffTimeMinutes);
-            rollTimeOutput.textContent = formatTime(calculatedRollTimeMinutes);
-            palletTimeOutput.textContent = formatTime(calculatedPalletTimeMinutes);
+            doffTimeOutput.textContent = formatTime(doffTimeMins);
+            rollTimeOutput.textContent = formatTime(rollTimeMins);
+            palletTimeOutput.textContent = formatTime(palletTimeMins);
         }
 
-        // Add event listeners
-        presetSelector.addEventListener('change', applyPreset);
-        rollsPerDoffInput.addEventListener('input', calculateAndDisplayTimes);
-        rollLengthInput.addEventListener('input', calculateAndDisplayTimes);
-        lineSpeedInput.addEventListener('input', calculateAndDisplayTimes);
-        rollsPerPalletInput.addEventListener('input', calculateAndDisplayTimes);
-
-        // Initial setup on page load
+        // --- Event Listeners & Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            populatePresets(); // Populate the dropdown
+            loadPresetsFromStorage();
+            populatePresetDropdown();
+
             // Initial validation for all fields
             validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
             validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
@@ -318,7 +379,14 @@
             calculateAndDisplayTimes(); // Perform initial calculation
         });
 
-    </script>
+        presetSelector.addEventListener('change', applySelectedPreset);
+        savePresetButton.addEventListener('click', handleSavePreset);
 
+        // Add input event listeners to all relevant inputs for real-time calculation
+        [rollLengthInput, rollsPerDoffInput, lineSpeedInput, rollsPerPalletInput].forEach(input => {
+            input.addEventListener('input', calculateAndDisplayTimes);
+        });
+
+    </script>
 </body>
 </html>
