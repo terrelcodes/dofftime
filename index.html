@@ -106,7 +106,7 @@
                         <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
                     <div class="p-3 bg-white rounded-md shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Pallet Time (Doff Time * Rolls per Pallet):</p>
+                        <p class="text-sm font-medium text-gray-600">Pallet Time (Roll Time * Rolls per Pallet):</p>
                         <p id="palletTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
                     <p id="overallValidationMessage" class="mt-2 text-sm text-red-600 font-medium"></p>
@@ -129,13 +129,13 @@
         const overallValidationMessage = document.getElementById('overallValidationMessage');
 
         // Output elements
-        const rollTimeOutput = document.getElementById('rollTimeOutput'); // Displays what user defined as "Roll Time"
-        const doffTimeOutput = document.getElementById('doffTimeOutput'); // Displays what user defined as "Doff Time"
+        const rollTimeOutput = document.getElementById('rollTimeOutput'); 
+        const doffTimeOutput = document.getElementById('doffTimeOutput'); 
         const palletTimeOutput = document.getElementById('palletTimeOutput');
 
         // Helper function to format time in minutes and seconds
         function formatTime(totalMinutes) {
-            if (isNaN(totalMinutes) || totalMinutes < 0 || !isFinite(totalMinutes)) { // Added isFinite check
+            if (isNaN(totalMinutes) || totalMinutes < 0 || !isFinite(totalMinutes)) { 
                 return "-- min -- sec";
             }
             const minutes = Math.floor(totalMinutes);
@@ -173,14 +173,12 @@
                 return false;
             }
             
-            // Special check for lineSpeed and rollsPerDoff to ensure they are not zero for division
             if ((name === "Line Speed" || name === "Rolls per Doff") && value === 0) {
-                 validationMsgElement.textContent = `${name} cannot be zero.`;
+                 validationMsgElement.textContent = `${name} cannot be zero (used in division).`;
                 validationMsgElement.classList.add('text-red-500');
                 inputElement.classList.add('input-error');
                 return false;
             }
-
 
             if (min !== null && value < min) {
                 validationMsgElement.textContent = `${name} must be at least ${min}.`;
@@ -196,7 +194,6 @@
                 return false;
             }
             
-            // If valid
             inputElement.classList.add('input-success');
             validationMsgElement.textContent = '✓';
             validationMsgElement.classList.add('text-green-500');
@@ -206,9 +203,6 @@
 
         // Function to perform all calculations and update the UI
         function calculateAndDisplayTimes() {
-            // Validate all inputs before proceeding
-            // Note: For rollsPerDoff, min is 2 as per original spec, but for division, it cannot be 0.
-            // The validateSingleInput function now has a check for 0 for Line Speed and Rolls per Doff.
             const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
             const isRollLengthValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
             const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
@@ -219,7 +213,7 @@
                 doffTimeOutput.textContent = "-- min -- sec";
                 palletTimeOutput.textContent = "-- min -- sec";
                 overallValidationMessage.textContent = "Please correct the errors in the input fields.";
-                return; // Stop calculation if any input is invalid
+                return; 
             }
             overallValidationMessage.textContent = "";
 
@@ -230,27 +224,24 @@
             const lineSpeed = parseFloat(lineSpeedInput.value);
             const rollsPerPallet = parseFloat(rollsPerPalletInput.value);
 
-            // Perform calculations based on USER'S DEFINITIONS:
-            // Doff Time = Roll Length / Line Speed
-            // Roll Time = Doff Time / Rolls per Doff
-            // Pallet Time = Doff Time * Rolls per Pallet
+            // Perform calculations based on CORRECTED USER'S DEFINITIONS:
+            // 1. Doff Time = Roll Length / Line Speed
+            // 2. Roll Time = Doff Time / Rolls per Doff
+            // 3. Pallet Time = Roll Time * Rolls per Pallet
 
             let calculatedDoffTimeMinutes = 0;
-            if (lineSpeed > 0) { // This check is technically redundant due to validation, but good for safety
-                calculatedDoffTimeMinutes = rollLength / lineSpeed;
-            }
-
-            let calculatedRollTimeMinutes = 0;
-            if (rollsPerDoff > 0) { // This check is also redundant due to validation
-                calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
-            }
+            // lineSpeed > 0 is ensured by validation (min="1" and zero check)
+            calculatedDoffTimeMinutes = rollLength / lineSpeed;
             
-            const calculatedPalletTimeMinutes = calculatedDoffTimeMinutes * rollsPerPallet;
+            let calculatedRollTimeMinutes = 0;
+            // rollsPerDoff > 0 is ensured by validation (min="2" and zero check)
+            calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
+            
+            // rollsPerPallet >= 1 is ensured by validation
+            const calculatedPalletTimeMinutes = calculatedRollTimeMinutes * rollsPerPallet;
 
             // Update the display
-            // The 'doffTimeOutput' HTML element will display what the user defined as "Doff Time"
             doffTimeOutput.textContent = formatTime(calculatedDoffTimeMinutes);
-            // The 'rollTimeOutput' HTML element will display what the user defined as "Roll Time"
             rollTimeOutput.textContent = formatTime(calculatedRollTimeMinutes);
             palletTimeOutput.textContent = formatTime(calculatedPalletTimeMinutes);
         }
