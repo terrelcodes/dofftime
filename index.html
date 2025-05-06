@@ -121,11 +121,11 @@
                     <table>
                         <tr>
                             <th>Line Speed:</th>
-                            <td><input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 952.6"><p id="lineSpeedValidation"></p></td>
+                            <td><input type="number" id="lineSpeed" name="lineSpeed" min="400" step="any" required placeholder="e.g., 952.6"><p id="lineSpeedValidation"></p></td>
                         </tr>
                         <tr>
                             <th>Roll Length:</th>
-                            <td><input type="number" id="rollLength" name="rollLength" min="1" step="any" required value="1500"><p id="rollLengthValidation"></p></td>
+                            <td><input type="number" id="rollLength" name="rollLength" min="1000" step="any" required value="1500"><p id="rollLengthValidation"></p></td>
                         </tr>
                         <tr> 
                             <th>Rolls per Doff:</th>
@@ -133,7 +133,7 @@
                         </tr>
                         <tr>
                             <th>Rolls per Pallet:</th>
-                            <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 192"><p id="rollsPerPalletValidation"></p></td>
+                            <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="16" step="1" required placeholder="e.g., 192"><p id="rollsPerPalletValidation"></p></td>
                         </tr>
                     </table>
 
@@ -188,9 +188,9 @@
             { name: "1500ft, 6/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 192 },
             { name: "1500ft, 6/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 256 },
             { name: "5000ft, 5/doff, 40/pallet",  rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "6000ft, 5/doff, 40/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "7500ft, 5/doff, 40/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 40 },
-            { name: "9000ft, 5/doff, 40/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 40 }
+            { name: "6000ft, 5/doff, 20/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 20 },
+            { name: "7500ft, 5/doff, 20/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 20 },
+            { name: "9000ft, 5/doff, 20/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 20 }
         ];
         let currentPresets = [];
 
