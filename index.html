@@ -44,12 +44,21 @@
             border-color: #6366F1; /* indigo-500 */
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* ring-indigo-500 */
         }
+        /* .panel class is now defined with responsive padding */
         .panel {
             background-color: white;
-            padding: 1.5rem; /* p-6 */
+            /* Default padding for small screens */
+            padding: 1rem; /* p-4 */
             border-radius: 0.5rem; /* rounded-lg */
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); /* shadow-md */
         }
+        /* Padding for medium screens and up */
+        @media (min-width: 768px) { /* md breakpoint */
+            .panel {
+                padding: 1.5rem; /* p-6 */
+            }
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
@@ -83,11 +92,16 @@
             margin-right: auto;
             padding: 1rem; /* p-4 */
         }
+        /* Layout: single column by default, two columns on md and up */
+        .calculator-layout {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column by default */
+            gap: 1rem; /* Default gap for stacked layout */
+        }
         @media (min-width: 768px) { /* md breakpoint */
             .calculator-layout {
-                display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr)); /* Two equal columns */
-                gap: 1.5rem; /* gap-6 */
+                gap: 1.5rem; /* gap-6 for two-column layout */
             }
         }
     </style>
@@ -95,12 +109,12 @@
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="main-container">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center">Production Time Calculator</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 text-center">Production Time Calculator</h1>
 
         <div class="calculator-layout">
             <div class="input-section-wrapper">
-                <form id="productionForm" class="panel space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Input Parameters</h2>
+                <form id="productionForm" class="panel space-y-3 md:space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Input Parameters</h2>
                     <div>
                         <label for="rollLength">Roll Length (feet):</label>
                         <input type="number" id="rollLength" name="rollLength" min="1" step="any" required placeholder="e.g., 1000">
@@ -124,9 +138,9 @@
                 </form>
             </div>
 
-            <div class="presets-output-wrapper space-y-6">
+            <div class="presets-output-wrapper space-y-4 md:space-y-6">
                 <div class="preset-section panel">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Presets</h2>
+                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Presets</h2>
                     <div>
                         <label for="presetSelector">Load Preset:</label>
                         <select id="presetSelector" name="presetSelector" class="mb-3"></select>
@@ -136,20 +150,20 @@
                 </div>
 
                 <div class="output-section panel bg-indigo-50">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Calculated Times</h2>
-                    <div class="p-3 bg-white rounded-md shadow-sm mb-3">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Calculated Times</h2>
+                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm mb-2 md:mb-3">
                         <p class="text-sm font-medium text-gray-600">Doff Time (Roll Length / Line Speed):</p>
                         <p id="doffTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
-                    <div class="p-3 bg-white rounded-md shadow-sm mb-3">
+                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm mb-2 md:mb-3">
                         <p class="text-sm font-medium text-gray-600">Roll Time (Doff Time / Rolls per Doff):</p>
                         <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
-                    <div class="p-3 bg-white rounded-md shadow-sm">
+                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm">
                         <p class="text-sm font-medium text-gray-600">Pallet Time (Roll Time * Rolls per Pallet):</p>
                         <p id="palletTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
-                    <p id="overallValidationMessage" class="mt-3 text-sm text-red-600 font-medium"></p>
+                    <p id="overallValidationMessage" class="mt-2 md:mt-3 text-sm text-red-600 font-medium"></p>
                 </div>
             </div>
         </div>
@@ -228,19 +242,15 @@
 
         function applySelectedPreset() {
             const selectedIndex = presetSelector.value;
-            // Do not proceed if the "-- Select a Preset --" option is re-selected by this function
             if (selectedIndex === "" && presetSelector.manuallyCleared) {
-                 presetSelector.manuallyCleared = false; // Reset flag
+                 presetSelector.manuallyCleared = false; 
                  return;
             }
             
-            if (selectedIndex === "") { // User selected "-- Select a Preset --"
-                // Optionally clear fields, or just let calculateAndDisplayTimes handle it
-                // For now, we let calculateAndDisplayTimes update the UI state
+            if (selectedIndex === "") {
                 calculateAndDisplayTimes();
                 return;
             }
-
 
             const selectedPreset = currentPresets[parseInt(selectedIndex, 10)];
             if (selectedPreset) {
@@ -268,7 +278,7 @@
             const rpd = parseInt(rollsPerDoffInput.value, 10);
             const rpp = parseInt(rollsPerPalletInput.value, 10);
 
-            if (isNaN(rl) || isNaN(rpd) || isNaN(rpp)) return -1; // Invalid inputs can't match
+            if (isNaN(rl) || isNaN(rpd) || isNaN(rpp)) return -1;
 
             return currentPresets.findIndex(preset => 
                 preset.rollLength === rl &&
@@ -282,26 +292,20 @@
             const matchingPresetIndex = findMatchingPresetIndex();
 
             if (matchingPresetIndex !== -1) {
-                // Current inputs match an existing preset
                 if (presetSelector.value !== matchingPresetIndex.toString()) {
                     presetSelector.value = matchingPresetIndex;
                 }
                 savePresetButton.disabled = true;
                 savePresetMessage.textContent = `Current values match preset: "${currentPresets[matchingPresetIndex].name}".`;
             } else {
-                // No exact match, or inputs are invalid for forming a complete preset
-                // If the selector isn't already on the placeholder, set it.
-                // This avoids clearing a user's manual selection if they are typing incomplete valid data.
                 if (presetSelector.value !== "") {
-                     // Check if the current inputs are simply incomplete/invalid, not necessarily a non-match
                     if (!isValidForSaving) {
-                        // If values are invalid, don't clear the selector yet, user might be typing
+                        // User might be typing, don't clear selector yet
                     } else {
-                         presetSelector.value = ""; // Revert to "-- Select a Preset --"
-                         presetSelector.manuallyCleared = true; // Flag to prevent applySelectedPreset from re-running
+                         presetSelector.value = ""; 
+                         presetSelector.manuallyCleared = true; 
                     }
                 }
-
 
                 if (isValidForSaving) {
                     savePresetButton.disabled = false;
@@ -312,7 +316,6 @@
                 }
             }
         }
-
 
         function handleSavePreset() {
             if (savePresetButton.disabled) return; 
@@ -404,13 +407,11 @@
         }
 
         function calculateAndDisplayTimes() {
-            // Validate all inputs
             const isRLValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
             const isRPDValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
             const isRPPValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
             const isLSValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
 
-            // Update preset selector and save button state
             updatePresetUIState(); 
 
             if (!isRLValid || !isRPDValid || !isRPPValid || !isLSValid) {
