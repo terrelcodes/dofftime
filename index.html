@@ -159,7 +159,7 @@
         // --- DOM Element References ---
         const presetSelector = document.getElementById('presetSelector');
         const savePresetButton = document.getElementById('savePresetButton');
-        const savePresetMessage = document.getElementById('savePresetMessage'); // For messages about save button state
+        const savePresetMessage = document.getElementById('savePresetMessage');
         const rollsPerDoffInput = document.getElementById('rollsPerDoff');
         const rollLengthInput = document.getElementById('rollLength');
         const lineSpeedInput = document.getElementById('lineSpeed');
@@ -228,15 +228,26 @@
 
         function applySelectedPreset() {
             const selectedIndex = presetSelector.value;
-            if (selectedIndex === "") return;
+            // Do not proceed if the "-- Select a Preset --" option is re-selected by this function
+            if (selectedIndex === "" && presetSelector.manuallyCleared) {
+                 presetSelector.manuallyCleared = false; // Reset flag
+                 return;
+            }
+            
+            if (selectedIndex === "") { // User selected "-- Select a Preset --"
+                // Optionally clear fields, or just let calculateAndDisplayTimes handle it
+                // For now, we let calculateAndDisplayTimes update the UI state
+                calculateAndDisplayTimes();
+                return;
+            }
+
 
             const selectedPreset = currentPresets[parseInt(selectedIndex, 10)];
             if (selectedPreset) {
                 rollLengthInput.value = selectedPreset.rollLength;
                 rollsPerDoffInput.value = selectedPreset.rollsPerDoff;
                 rollsPerPalletInput.value = selectedPreset.rollsPerPallet;
-                // Line speed is not part of presets, so it's not changed here.
-                calculateAndDisplayTimes(); // This will also trigger updateSavePresetButtonState
+                calculateAndDisplayTimes(); 
             }
         }
         
@@ -252,40 +263,59 @@
             return true;
         }
 
-        function isCurrentCombinationDuplicate() {
-            if (!isCurrentCombinationValidForSaving()) return false; // Don't check for duplicates if values are invalid
-
+        function findMatchingPresetIndex() {
             const rl = parseFloat(rollLengthInput.value);
             const rpd = parseInt(rollsPerDoffInput.value, 10);
             const rpp = parseInt(rollsPerPalletInput.value, 10);
 
-            return currentPresets.some(preset => 
+            if (isNaN(rl) || isNaN(rpd) || isNaN(rpp)) return -1; // Invalid inputs can't match
+
+            return currentPresets.findIndex(preset => 
                 preset.rollLength === rl &&
                 preset.rollsPerDoff === rpd &&
                 preset.rollsPerPallet === rpp
             );
         }
 
-        function updateSavePresetButtonState() {
-            const isValid = isCurrentCombinationValidForSaving();
-            const isDuplicate = isCurrentCombinationDuplicate(); // This already implies isValid
+        function updatePresetUIState() {
+            const isValidForSaving = isCurrentCombinationValidForSaving();
+            const matchingPresetIndex = findMatchingPresetIndex();
 
-            if (!isValid) {
+            if (matchingPresetIndex !== -1) {
+                // Current inputs match an existing preset
+                if (presetSelector.value !== matchingPresetIndex.toString()) {
+                    presetSelector.value = matchingPresetIndex;
+                }
                 savePresetButton.disabled = true;
-                savePresetMessage.textContent = "Enter valid values for Roll Length, Rolls/Doff, and Rolls/Pallet to enable saving.";
-            } else if (isDuplicate) {
-                savePresetButton.disabled = true;
-                savePresetMessage.textContent = "This combination is already saved as a preset.";
+                savePresetMessage.textContent = `Current values match preset: "${currentPresets[matchingPresetIndex].name}".`;
             } else {
-                savePresetButton.disabled = false;
-                savePresetMessage.textContent = "Ready to save this combination as a new preset.";
+                // No exact match, or inputs are invalid for forming a complete preset
+                // If the selector isn't already on the placeholder, set it.
+                // This avoids clearing a user's manual selection if they are typing incomplete valid data.
+                if (presetSelector.value !== "") {
+                     // Check if the current inputs are simply incomplete/invalid, not necessarily a non-match
+                    if (!isValidForSaving) {
+                        // If values are invalid, don't clear the selector yet, user might be typing
+                    } else {
+                         presetSelector.value = ""; // Revert to "-- Select a Preset --"
+                         presetSelector.manuallyCleared = true; // Flag to prevent applySelectedPreset from re-running
+                    }
+                }
+
+
+                if (isValidForSaving) {
+                    savePresetButton.disabled = false;
+                    savePresetMessage.textContent = "Ready to save this combination as a new preset.";
+                } else {
+                    savePresetButton.disabled = true;
+                    savePresetMessage.textContent = "Enter valid values for Roll Length, Rolls/Doff, and Rolls/Pallet to enable saving.";
+                }
             }
         }
 
 
         function handleSavePreset() {
-            // Button should be enabled by updateSavePresetButtonState, so values are valid and not duplicate
-            if (savePresetButton.disabled) return; // Should not happen if logic is correct
+            if (savePresetButton.disabled) return; 
 
             const rollLength = parseFloat(rollLengthInput.value);
             const rollsPerDoff = parseInt(rollsPerDoffInput.value, 10);
@@ -293,7 +323,7 @@
 
             let presetName = prompt("Enter a name for this preset:", `Custom: ${rollLength}ft, ${rollsPerDoff}/doff, ${rollsPerPallet}/pallet`);
             if (presetName === null || presetName.trim() === "") {
-                return; // User cancelled or entered empty name
+                return; 
             }
             presetName = presetName.trim();
 
@@ -306,10 +336,10 @@
 
             currentPresets.push(newPreset);
             savePresetsToStorage();
-            populatePresetDropdown(); // Refresh dropdown
-            presetSelector.value = currentPresets.length - 1; // Select the newly added preset
+            populatePresetDropdown(); 
+            presetSelector.value = currentPresets.length - 1; 
             
-            updateSavePresetButtonState(); // Re-check button state (should now be disabled as it's a duplicate)
+            updatePresetUIState(); 
             alert(`Preset "${presetName}" saved!`);
         }
 
@@ -380,8 +410,8 @@
             const isRPPValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
             const isLSValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
 
-            // Update save preset button state based on preset-related fields
-            updateSavePresetButtonState(); 
+            // Update preset selector and save button state
+            updatePresetUIState(); 
 
             if (!isRLValid || !isRPDValid || !isRPPValid || !isLSValid) {
                 doffTimeOutput.textContent = "-- min -- sec";
@@ -410,18 +440,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadPresetsFromStorage();
             populatePresetDropdown();
-            
-            // Initial validation for all fields
-            // This will also call updateSavePresetButtonState indirectly via calculateAndDisplayTimes
             calculateAndDisplayTimes(); 
         });
 
         presetSelector.addEventListener('change', applySelectedPreset);
         savePresetButton.addEventListener('click', handleSavePreset);
 
-        // Add input event listeners to all relevant inputs for real-time calculation
-        // and save button state update
-        [rollLengthInput, rollsPerDoffInput, lineSpeedInput, rollsPerPalletInput].forEach(input => {
+        [rollLengthInput, rollsPerDoffInput, rollsPerPalletInput, lineSpeedInput].forEach(input => {
             input.addEventListener('input', calculateAndDisplayTimes);
         });
 
