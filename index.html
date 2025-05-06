@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Time Calculator</title>
+    <title>Production Time Calculator with Presets</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom styles for better visual feedback and layout */
@@ -27,15 +27,16 @@
             display: block;
             margin-bottom: 0.25rem; /* mb-1 */
         }
-        input[type="number"] {
+        input[type="number"], select {
             width: 100%;
             padding: 0.5rem 0.75rem; /* px-3 py-2 */
             border-width: 1px;
             border-color: #D1D5DB; /* gray-300 */
             border-radius: 0.375rem; /* rounded-md */
             box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            background-color: white; /* Ensure select has white background */
         }
-        input[type="number"]:focus {
+        input[type="number"]:focus, select:focus {
             outline: 2px solid transparent;
             outline-offset: 2px;
             border-color: #6366F1; /* indigo-500 */
@@ -51,6 +52,14 @@
                 grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens and up */
             }
         }
+        /* Styling for the preset section */
+        .preset-section {
+            margin-bottom: 1.5rem; /* mb-6 */
+            padding: 1rem; /* p-4 */
+            background-color: #f9fafb; /* gray-50 */
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -58,18 +67,19 @@
     <div class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-2xl">
         <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">Production Time Calculator</h1>
 
+        <div class="preset-section">
+            <label for="presetSelector" class="block text-sm font-medium text-gray-700 mb-1">
+                Load Preset:
+            </label>
+            <select id="presetSelector" name="presetSelector" class="transition-all duration-150 ease-in-out">
+                <option value="">-- Select a Preset --</option>
+                </select>
+        </div>
+
         <form id="productionForm" class="space-y-6">
             <div class="grid-container">
                 <div class="space-y-4 p-4 border border-gray-200 rounded-lg">
                     <h2 class="text-lg font-semibold text-gray-700 mb-3">Input Parameters</h2>
-                    <div>
-                        <label for="rollsPerDoff" class="text-sm font-medium text-gray-700">
-                            Rolls per Doff (2-8):
-                        </label>
-                        <input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="2" class="transition-all duration-150 ease-in-out">
-                        <p id="rollsPerDoffValidation" class="mt-1 text-xs text-gray-500"></p>
-                    </div>
-
                     <div>
                         <label for="rollLength" class="text-sm font-medium text-gray-700">
                             Roll Length (feet):
@@ -79,19 +89,27 @@
                     </div>
 
                     <div>
-                        <label for="lineSpeed" class="text-sm font-medium text-gray-700">
-                            Line Speed (feet per minute):
+                        <label for="rollsPerDoff" class="text-sm font-medium text-gray-700">
+                            Rolls per Doff (2-8):
                         </label>
-                        <input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 500" class="transition-all duration-150 ease-in-out">
-                        <p id="lineSpeedValidation" class="mt-1 text-xs text-gray-500"></p>
+                        <input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="2" class="transition-all duration-150 ease-in-out">
+                        <p id="rollsPerDoffValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
-
+                    
                     <div>
                         <label for="rollsPerPallet" class="text-sm font-medium text-gray-700">
                             Rolls per Pallet:
                         </label>
                         <input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 20" class="transition-all duration-150 ease-in-out">
                         <p id="rollsPerPalletValidation" class="mt-1 text-xs text-gray-500"></p>
+                    </div>
+
+                    <div>
+                        <label for="lineSpeed" class="text-sm font-medium text-gray-700">
+                            Line Speed (feet per minute):
+                        </label>
+                        <input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 500" class="transition-all duration-150 ease-in-out">
+                        <p id="lineSpeedValidation" class="mt-1 text-xs text-gray-500"></p>
                     </div>
                 </div>
 
@@ -116,7 +134,21 @@
     </div>
 
     <script>
+        // Preset Data
+        const presets = [
+            { name: "1500ft, 5/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 192 },
+            { name: "2000ft, 5/doff, 192/pallet", rollLength: 2000, rollsPerDoff: 5, rollsPerPallet: 192 },
+            { name: "1500ft, 5/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 5, rollsPerPallet: 256 },
+            { name: "1500ft, 6/doff, 192/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 192 },
+            { name: "1500ft, 6/doff, 256/pallet", rollLength: 1500, rollsPerDoff: 6, rollsPerPallet: 256 },
+            { name: "5000ft, 5/doff, 40/pallet",  rollLength: 5000, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "6000ft, 5/doff, 40/pallet",  rollLength: 6000, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "7500ft, 5/doff, 40/pallet",  rollLength: 7500, rollsPerDoff: 5, rollsPerPallet: 40 },
+            { name: "9000ft, 5/doff, 40/pallet",  rollLength: 9000, rollsPerDoff: 5, rollsPerPallet: 40 }
+        ];
+
         // Get references to all input and output elements
+        const presetSelector = document.getElementById('presetSelector');
         const rollsPerDoffInput = document.getElementById('rollsPerDoff');
         const rollLengthInput = document.getElementById('rollLength');
         const lineSpeedInput = document.getElementById('lineSpeed');
@@ -132,6 +164,37 @@
         const rollTimeOutput = document.getElementById('rollTimeOutput'); 
         const doffTimeOutput = document.getElementById('doffTimeOutput'); 
         const palletTimeOutput = document.getElementById('palletTimeOutput');
+
+        // Populate Preset Dropdown
+        function populatePresets() {
+            presets.forEach((preset, index) => {
+                const option = document.createElement('option');
+                option.value = index; // Use index as value for easy lookup
+                option.textContent = preset.name;
+                presetSelector.appendChild(option);
+            });
+        }
+
+        // Handle Preset Selection
+        function applyPreset() {
+            const selectedIndex = presetSelector.value;
+            if (selectedIndex === "") { // "-- Select a Preset --" chosen
+                // Optionally clear fields or do nothing
+                // For now, do nothing, let user manually input or pick another preset
+                return;
+            }
+
+            const selectedPreset = presets[parseInt(selectedIndex, 10)];
+            if (selectedPreset) {
+                rollLengthInput.value = selectedPreset.rollLength;
+                rollsPerDoffInput.value = selectedPreset.rollsPerDoff;
+                rollsPerPalletInput.value = selectedPreset.rollsPerPallet;
+
+                // Trigger calculation and validation after applying preset
+                calculateAndDisplayTimes();
+            }
+        }
+
 
         // Helper function to format time in minutes and seconds
         function formatTime(totalMinutes) {
@@ -203,10 +266,11 @@
 
         // Function to perform all calculations and update the UI
         function calculateAndDisplayTimes() {
-            const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
             const isRollLengthValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
-            const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
             const isRollsPerPalletValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
+            const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+
 
             if (!isRollsPerDoffValid || !isRollLengthValid || !isLineSpeedValid || !isRollsPerPalletValid) {
                 rollTimeOutput.textContent = "-- min -- sec";
@@ -224,20 +288,9 @@
             const lineSpeed = parseFloat(lineSpeedInput.value);
             const rollsPerPallet = parseFloat(rollsPerPalletInput.value);
 
-            // Perform calculations based on CORRECTED USER'S DEFINITIONS:
-            // 1. Doff Time = Roll Length / Line Speed
-            // 2. Roll Time = Doff Time / Rolls per Doff
-            // 3. Pallet Time = Roll Time * Rolls per Pallet
-
-            let calculatedDoffTimeMinutes = 0;
-            // lineSpeed > 0 is ensured by validation (min="1" and zero check)
-            calculatedDoffTimeMinutes = rollLength / lineSpeed;
-            
-            let calculatedRollTimeMinutes = 0;
-            // rollsPerDoff > 0 is ensured by validation (min="2" and zero check)
-            calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
-            
-            // rollsPerPallet >= 1 is ensured by validation
+            // Perform calculations 
+            let calculatedDoffTimeMinutes = rollLength / lineSpeed;
+            let calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
             const calculatedPalletTimeMinutes = calculatedRollTimeMinutes * rollsPerPallet;
 
             // Update the display
@@ -246,19 +299,23 @@
             palletTimeOutput.textContent = formatTime(calculatedPalletTimeMinutes);
         }
 
-        // Add event listeners to all input fields to recalculate on change
+        // Add event listeners
+        presetSelector.addEventListener('change', applyPreset);
         rollsPerDoffInput.addEventListener('input', calculateAndDisplayTimes);
         rollLengthInput.addEventListener('input', calculateAndDisplayTimes);
         lineSpeedInput.addEventListener('input', calculateAndDisplayTimes);
         rollsPerPalletInput.addEventListener('input', calculateAndDisplayTimes);
 
-        // Initial calculation and validation on page load
+        // Initial setup on page load
         document.addEventListener('DOMContentLoaded', () => {
-            validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
+            populatePresets(); // Populate the dropdown
+            // Initial validation for all fields
             validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
-            validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
             validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
-            calculateAndDisplayTimes(); 
+            validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            
+            calculateAndDisplayTimes(); // Perform initial calculation
         });
 
     </script>
