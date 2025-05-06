@@ -109,63 +109,53 @@
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="main-container">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 text-center">Production Time Calculator</h1>
 
         <div class="calculator-layout">
             <div class="input-section-wrapper">
-                <form id="productionForm" class="panel space-y-3 md:space-y-6">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Input Parameters</h2>
-                    <div>
-                        <label for="lineSpeed">Line Speed (feet per minute):</label>
-                        <input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 500">
-                        <p id="lineSpeedValidation" class="mt-1 text-xs text-gray-500"></p>
-                    </div>
-                     <div>
-                        <label for="rollLength">Roll Length (feet):</label>
-                        <input type="number" id="rollLength" name="rollLength" min="1" step="any" required placeholder="e.g., 1000">
-                        <p id="rollLengthValidation" class="mt-1 text-xs text-gray-500"></p>
-                    </div>
-                    <div>
-                        <label for="rollsPerDoff">Rolls per Doff (2-8):</label>
-                        <input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="2">
-                        <p id="rollsPerDoffValidation" class="mt-1 text-xs text-gray-500"></p>
-                    </div>
-                    <div>
-                        <label for="rollsPerPallet">Rolls per Pallet:</label>
-                        <input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 20">
-                        <p id="rollsPerPalletValidation" class="mt-1 text-xs text-gray-500"></p>
-                    </div>
-            </form>
-            </div>
-
-            <div class="presets-output-wrapper space-y-4 md:space-y-6">
-                <div class="preset-section panel">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Presets</h2>
                     <div>
                         <label for="presetSelector">Load Preset:</label>
-                        <select id="presetSelector" name="presetSelector" class="mb-3"></select>
-                    </div>
-                    <button id="savePresetButton" class="btn w-full" disabled>Save Current as Preset</button>
+                        <select id="presetSelector" name="presetSelector"></select><button id="savePresetButton">Save Current as Preset</button>
                     <p id="savePresetMessage" class="mt-2 text-xs text-gray-500"></p>
-                </div>
+                    </div>
+                <form id="productionForm" class="panel space-y-3 md:space-y-6">
+                    <table>
+                        <tr>
+                            <th>Line Speed:</th>
+                            <td><input type="number" id="lineSpeed" name="lineSpeed" min="1" step="any" required placeholder="e.g., 952.6"><p id="lineSpeedValidation"></p></td>
+                        </tr>
+                        <tr>
+                            <th>Roll Length:</th>
+                            <td><input type="number" id="rollLength" name="rollLength" min="1" step="any" required value="1500"><p id="rollLengthValidation"></p></td>
+                        </tr>
+                        <tr> 
+                            <th>Rolls per Doff:</th>
+                            <td><input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="5"><p id="rollsPerDoffValidation"></p></td>
+                        </tr>
+                        <tr>
+                            <th>Rolls per Pallet:</th>
+                            <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="1" step="1" required placeholder="e.g., 192"><p id="rollsPerPalletValidation"></p></td>
+                        </tr>
+                    </table>
 
+            </form>
+            </div>
                 <div class="output-section panel bg-indigo-50">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-3 md:mb-4">Calculated Times</h2>
-                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm mb-2 md:mb-3">
-                        <p class="text-sm font-medium text-gray-600">Doff Time (Roll Length / Line Speed):</p>
-                        <p id="doffTimeOutput" class="text-lg output-value">-- min -- sec</p>
-                    </div>
-                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm mb-2 md:mb-3">
-                        <p class="text-sm font-medium text-gray-600">Roll Time (Doff Time / Rolls per Doff):</p>
-                        <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
-                    </div>
-                    <div class="p-2 md:p-3 bg-white rounded-md shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Pallet Time (Roll Time * Rolls per Pallet):</p>
-                        <p id="palletTimeOutput" class="text-lg output-value">-- min -- sec</p>
-                    </div>
+                    <table>
+                        <tr>
+                            <th>Doff Time:</th>
+                            <td id="doffTimeOutput">-- min -- sec</td>
+                        </tr>
+                       <tr>
+                            <th>Roll Time:</th>
+                            <td id="rollTimeOutput">-- min -- sec</td>
+                        </tr>
+                       <tr>
+                            <th>Pallet Time:</th>
+                            <td id="palletTimeOutput">-- min -- sec</td>
+                        </tr>
+                    </table>
                     <p id="overallValidationMessage" class="mt-2 md:mt-3 text-sm text-red-600 font-medium"></p>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -246,7 +236,6 @@
                  presetSelector.manuallyCleared = false; 
                  return;
             }
-            
             if (selectedIndex === "") {
                 calculateAndDisplayTimes();
                 return;
@@ -295,7 +284,7 @@
                 if (presetSelector.value !== matchingPresetIndex.toString()) {
                     presetSelector.value = matchingPresetIndex;
                 }
-                savePresetButton.disabled = true;
+                savePresetButton.hidden = true;
                 savePresetMessage.textContent = `Current values match preset: "${currentPresets[matchingPresetIndex].name}".`;
             } else {
                 if (presetSelector.value !== "") {
@@ -308,10 +297,10 @@
                 }
 
                 if (isValidForSaving) {
-                    savePresetButton.disabled = false;
+                    savePresetButton.hidden = false;
                     savePresetMessage.textContent = "Ready to save this combination as a new preset.";
                 } else {
-                    savePresetButton.disabled = true;
+                    savePresetButton.hidden = true;
                     savePresetMessage.textContent = "Enter valid values for Roll Length, Rolls/Doff, and Rolls/Pallet to enable saving.";
                 }
             }
