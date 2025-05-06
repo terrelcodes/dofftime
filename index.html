@@ -13,18 +13,20 @@
         }
 
         .main-container {
+
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+            align-items: stretch;
+            justify-content: stretch   ;
+            gap: 1rem;
+            margin: auto;
+            max-width: 64rem;
             /* p-4 */
         }
         table {
-            width: 100%;
             margin-bottom: 1rem;
             border-radius: 0.5rem;
-            /* rounded-lg */
+            width: 100%;
             overflow: hidden;
         }
         .input-error {
@@ -59,7 +61,7 @@
             text-align: right;
             padding: 0.5rem 0;
             width: 50%;
-            font-weight: 800;
+            font-weight: 600;
             /* medium */
             color: #374151;
             /* gray-700 */
@@ -73,15 +75,10 @@
             color: #374151;
             /* gray-700 */
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-            /* mb-4 */
-        }
+    
         input[type="number"]
          {
-            padding: 0.5rem 0.75rem;
+            padding: 0.25rem 0.75rem;
             width: 10ch;
             /* px-3 py-2 */
             border-width: 1px;
@@ -108,7 +105,7 @@
         .panel {
             background-color: white;
             /* Default padding for small screens */
-            padding: 1rem;
+            padding: .5rem;
             /* p-4 */
             border-radius: 0.5rem;
             /* rounded-lg */
@@ -130,7 +127,8 @@
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="main-container">
-        <table id="output-panel" style="display: none;">
+        <div id="output-panel" class="panel">
+        <table>
             <tr>
                 <th>Doff Time:</th>
                 <td id="doffTimeOutput">-- min -- sec</td>
@@ -144,7 +142,8 @@
                 <td id="palletTimeOutput">-- min -- sec</td>
             </tr>
         </table>
-        <div id="error-panel">
+        </div>
+        <div id="error-panel"   class="panel" style="display: none;">
             <p id="lineSpeedValidation"></p>
             <p id="rollLengthValidation"></p>
             <p id="rollsPerDoffValidation"></p>
@@ -152,6 +151,7 @@
             <p id="overallValidationMessage"></p>
         </div>
 
+        <div class="panel">
         <form id="productionForm">
             <table>
                 <tr>
@@ -176,12 +176,11 @@
                 </tr>
             </table>
         </form>
-
-        <div id="preset-panel">
+        </div>
+        <div id="preset-panel"  class="panel">
             <label for="presetSelector">Load Preset:</label>
             <select id="presetSelector" name="presetSelector"></select>
             <button id="savePresetButton">Save Current as Preset</button>
-            <p id="savePresetMessage"></p>
         </div>
     </div>
     </div>
@@ -190,7 +189,6 @@
         // --- DOM Element References ---
         const presetSelector = document.getElementById('presetSelector');
         const savePresetButton = document.getElementById('savePresetButton');
-        const savePresetMessage = document.getElementById('savePresetMessage');
         const rollsPerDoffInput = document.getElementById('rollsPerDoff');
         const rollLengthInput = document.getElementById('rollLength');
         const lineSpeedInput = document.getElementById('lineSpeed');
@@ -316,7 +314,6 @@
                     presetSelector.value = matchingPresetIndex;
                 }
                 savePresetButton.hidden = true;
-                savePresetMessage.textContent = `Current values match preset: "${currentPresets[matchingPresetIndex].name}".`;
             } else {
                 if (presetSelector.value !== "") {
                     if (!isValidForSaving) {
@@ -326,14 +323,7 @@
                         presetSelector.manuallyCleared = true;
                     }
                 }
-
-                if (isValidForSaving) {
-                    savePresetButton.hidden = false;
-                    savePresetMessage.textContent = "Ready to save this combination as a new preset.";
-                } else {
-                    savePresetButton.hidden = true;
-                    savePresetMessage.textContent = "Enter valid values for Roll Length, Rolls/Doff, and Rolls/Pallet to enable saving.";
-                }
+                savePresetButton.hidden= !isValidForSaving;
             }
         }
 
