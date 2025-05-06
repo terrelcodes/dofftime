@@ -98,15 +98,15 @@
                 <div class="space-y-4 p-4 border border-gray-200 rounded-lg bg-indigo-50">
                     <h2 class="text-lg font-semibold text-gray-700 mb-3">Calculated Times</h2>
                     <div class="p-3 bg-white rounded-md shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Roll Time:</p>
-                        <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
-                    </div>
-                    <div class="p-3 bg-white rounded-md shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Doff Time:</p>
+                        <p class="text-sm font-medium text-gray-600">Doff Time (Roll Length / Line Speed):</p>
                         <p id="doffTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
                     <div class="p-3 bg-white rounded-md shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Pallet Time:</p>
+                        <p class="text-sm font-medium text-gray-600">Roll Time (Doff Time / Rolls per Doff):</p>
+                        <p id="rollTimeOutput" class="text-lg output-value">-- min -- sec</p>
+                    </div>
+                    <div class="p-3 bg-white rounded-md shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Pallet Time (Doff Time * Rolls per Pallet):</p>
                         <p id="palletTimeOutput" class="text-lg output-value">-- min -- sec</p>
                     </div>
                     <p id="overallValidationMessage" class="mt-2 text-sm text-red-600 font-medium"></p>
@@ -128,14 +128,14 @@
         const rollsPerPalletValidationMsg = document.getElementById('rollsPerPalletValidation');
         const overallValidationMessage = document.getElementById('overallValidationMessage');
 
-
-        const rollTimeOutput = document.getElementById('rollTimeOutput');
-        const doffTimeOutput = document.getElementById('doffTimeOutput');
+        // Output elements
+        const rollTimeOutput = document.getElementById('rollTimeOutput'); // Displays what user defined as "Roll Time"
+        const doffTimeOutput = document.getElementById('doffTimeOutput'); // Displays what user defined as "Doff Time"
         const palletTimeOutput = document.getElementById('palletTimeOutput');
 
         // Helper function to format time in minutes and seconds
         function formatTime(totalMinutes) {
-            if (isNaN(totalMinutes) || totalMinutes < 0) {
+            if (isNaN(totalMinutes) || totalMinutes < 0 || !isFinite(totalMinutes)) { // Added isFinite check
                 return "-- min -- sec";
             }
             const minutes = Math.floor(totalMinutes);
@@ -172,6 +172,15 @@
                 inputElement.classList.add('input-error');
                 return false;
             }
+            
+            // Special check for lineSpeed and rollsPerDoff to ensure they are not zero for division
+            if ((name === "Line Speed" || name === "Rolls per Doff") && value === 0) {
+                 validationMsgElement.textContent = `${name} cannot be zero.`;
+                validationMsgElement.classList.add('text-red-500');
+                inputElement.classList.add('input-error');
+                return false;
+            }
+
 
             if (min !== null && value < min) {
                 validationMsgElement.textContent = `${name} must be at least ${min}.`;
@@ -198,10 +207,12 @@
         // Function to perform all calculations and update the UI
         function calculateAndDisplayTimes() {
             // Validate all inputs before proceeding
-            const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, 2, 8, true, "Rolls per Doff");
-            const isRollLengthValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, 0.01, null, false, "Roll Length");
-            const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, 0.01, null, false, "Line Speed");
-            const isRollsPerPalletValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, 1, null, true, "Rolls per Pallet");
+            // Note: For rollsPerDoff, min is 2 as per original spec, but for division, it cannot be 0.
+            // The validateSingleInput function now has a check for 0 for Line Speed and Rolls per Doff.
+            const isRollsPerDoffValid = validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
+            const isRollLengthValid = validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
+            const isLineSpeedValid = validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            const isRollsPerPalletValid = validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
 
             if (!isRollsPerDoffValid || !isRollLengthValid || !isLineSpeedValid || !isRollsPerPalletValid) {
                 rollTimeOutput.textContent = "-- min -- sec";
@@ -219,19 +230,29 @@
             const lineSpeed = parseFloat(lineSpeedInput.value);
             const rollsPerPallet = parseFloat(rollsPerPalletInput.value);
 
-            // Perform calculations
-            let rollTimeMinutes = 0;
-            if (lineSpeed > 0) {
-                rollTimeMinutes = rollLength / lineSpeed;
+            // Perform calculations based on USER'S DEFINITIONS:
+            // Doff Time = Roll Length / Line Speed
+            // Roll Time = Doff Time / Rolls per Doff
+            // Pallet Time = Doff Time * Rolls per Pallet
+
+            let calculatedDoffTimeMinutes = 0;
+            if (lineSpeed > 0) { // This check is technically redundant due to validation, but good for safety
+                calculatedDoffTimeMinutes = rollLength / lineSpeed;
             }
 
-            const doffTimeMinutes = rollTimeMinutes * rollsPerDoff;
-            const palletTimeMinutes = rollTimeMinutes * rollsPerPallet;
+            let calculatedRollTimeMinutes = 0;
+            if (rollsPerDoff > 0) { // This check is also redundant due to validation
+                calculatedRollTimeMinutes = calculatedDoffTimeMinutes / rollsPerDoff;
+            }
+            
+            const calculatedPalletTimeMinutes = calculatedDoffTimeMinutes * rollsPerPallet;
 
             // Update the display
-            rollTimeOutput.textContent = formatTime(rollTimeMinutes);
-            doffTimeOutput.textContent = formatTime(doffTimeMinutes);
-            palletTimeOutput.textContent = formatTime(palletTimeMinutes);
+            // The 'doffTimeOutput' HTML element will display what the user defined as "Doff Time"
+            doffTimeOutput.textContent = formatTime(calculatedDoffTimeMinutes);
+            // The 'rollTimeOutput' HTML element will display what the user defined as "Roll Time"
+            rollTimeOutput.textContent = formatTime(calculatedRollTimeMinutes);
+            palletTimeOutput.textContent = formatTime(calculatedPalletTimeMinutes);
         }
 
         // Add event listeners to all input fields to recalculate on change
@@ -240,16 +261,13 @@
         lineSpeedInput.addEventListener('input', calculateAndDisplayTimes);
         rollsPerPalletInput.addEventListener('input', calculateAndDisplayTimes);
 
-        // Initial calculation on page load (if there are default values)
-        // Set default validation messages for empty fields if desired, or rely on 'required'
+        // Initial calculation and validation on page load
         document.addEventListener('DOMContentLoaded', () => {
-            // Call once to set initial validation states if inputs have default values
-            // or to show "required" hints if empty.
-            validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, 2, 8, true, "Rolls per Doff");
-            validateSingleInput(rollLengthInput, rollLengthValidationMsg, 0.01, null, false, "Roll Length");
-            validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, 0.01, null, false, "Line Speed");
-            validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, 1, null, true, "Rolls per Pallet");
-            calculateAndDisplayTimes(); // Perform initial calculation if all valid
+            validateSingleInput(rollsPerDoffInput, rollsPerDoffValidationMsg, parseInt(rollsPerDoffInput.min, 10), parseInt(rollsPerDoffInput.max, 10), true, "Rolls per Doff");
+            validateSingleInput(rollLengthInput, rollLengthValidationMsg, parseFloat(rollLengthInput.min), null, false, "Roll Length");
+            validateSingleInput(lineSpeedInput, lineSpeedValidationMsg, parseFloat(lineSpeedInput.min), null, false, "Line Speed");
+            validateSingleInput(rollsPerPalletInput, rollsPerPalletValidationMsg, parseInt(rollsPerPalletInput.min, 10), null, true, "Rolls per Pallet");
+            calculateAndDisplayTimes(); 
         });
 
     </script>
