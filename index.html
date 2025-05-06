@@ -12,6 +12,21 @@
             /* gray-100 */
         }
 
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            /* p-4 */
+        }
+        table {
+            width: 100%;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            /* rounded-lg */
+            overflow: hidden;
+        }
         .input-error {
             border-color: #EF4444;
             /* red-500 */
@@ -40,7 +55,30 @@
             color: #374151;
             /* gray-700 */
         }
-
+        th {
+            text-align: right;
+            padding: 0.5rem 0;
+            width: 50%;
+            font-weight: 800;
+            /* medium */
+            color: #374151;
+            /* gray-700 */
+        }
+        td {
+            padding: 0.5rem 0;
+            text-align: right;
+            width: 50%;
+            font-weight: 400;
+            /* normal */
+            color: #374151;
+            /* gray-700 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            /* mb-4 */
+        }
         input[type="number"]
          {
             padding: 0.5rem 0.75rem;
@@ -92,7 +130,7 @@
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="main-container">
-        <table>
+        <table id="output-panel" style="display: none;">
             <tr>
                 <th>Doff Time:</th>
                 <td id="doffTimeOutput">-- min -- sec</td>
@@ -106,46 +144,45 @@
                 <td id="palletTimeOutput">-- min -- sec</td>
             </tr>
         </table>
-        <p id="overallValidationMessage"></p>
-        <div>
-            <label for="presetSelector">Load Preset:</label>
-            <select id="presetSelector" name="presetSelector"></select><button id="savePresetButton">Save Current as
-                Preset</button>
-            <p id="savePresetMessage" class="mt-2 text-xdds text-gray-500"></p>
+        <div id="error-panel">
+            <p id="lineSpeedValidation"></p>
+            <p id="rollLengthValidation"></p>
+            <p id="rollsPerDoffValidation"></p>
+            <p id="rollsPerPalletValidation"></p>
+            <p id="overallValidationMessage"></p>
         </div>
+
         <form id="productionForm">
             <table>
                 <tr>
                     <th>Line Speed:</th>
-                    <td><input type="number" id="lineSpeed" name="lineSpeed" min="400" step="any" required
-                            placeholder="e.g., 952.6">
-                        <p id="lineSpeedValidation"></p>
+                    <td><input type="number" id="lineSpeed" name="lineSpeed" min="400" step="any" required placeholder="e.g., 952.6">
                     </td>
                 </tr>
                 <tr>
                     <th>Roll Length:</th>
-                    <td><input type="number" id="rollLength" name="rollLength" min="1000" step="any" required
-                            value="1500">
-                        <p id="rollLengthValidation"></p>
+                    <td><input type="number" id="rollLength" name="rollLength" min="1000" step="any" required value="1500">
                     </td>
                 </tr>
                 <tr>
                     <th>Rolls per Doff:</th>
-                    <td><input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required
-                            value="5">
-                        <p id="rollsPerDoffValidation"></p>
+                    <td><input type="number" id="rollsPerDoff" name="rollsPerDoff" min="2" max="8" step="1" required value="5">
                     </td>
                 </tr>
                 <tr>
                     <th>Rolls per Pallet:</th>
-                    <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="16" step="1" required
-                            placeholder="e.g., 192">
-                        <p id="rollsPerPalletValidation"></p>
+                    <td><input type="number" id="rollsPerPallet" name="rollsPerPallet" min="16" step="1" required value="192">
                     </td>
                 </tr>
             </table>
         </form>
 
+        <div id="preset-panel">
+            <label for="presetSelector">Load Preset:</label>
+            <select id="presetSelector" name="presetSelector"></select>
+            <button id="savePresetButton">Save Current as Preset</button>
+            <p id="savePresetMessage"></p>
+        </div>
     </div>
     </div>
 
@@ -164,6 +201,10 @@
         const lineSpeedValidationMsg = document.getElementById('lineSpeedValidation');
         const rollsPerPalletValidationMsg = document.getElementById('rollsPerPalletValidation');
         const overallValidationMessage = document.getElementById('overallValidationMessage');
+
+        const outputPanel = document.getElementById('output-panel'); 
+        const errorPanel = document.getElementById('error-panel');
+
 
         const rollTimeOutput = document.getElementById('rollTimeOutput');
         const doffTimeOutput = document.getElementById('doffTimeOutput');
@@ -380,8 +421,6 @@
                 return false;
             }
             inputEl.classList.add('input-success');
-            msgEl.textContent = '✓';
-            msgEl.classList.add('text-green-500');
             return true;
         }
 
@@ -398,8 +437,12 @@
                 rollTimeOutput.textContent = "-- min -- sec";
                 palletTimeOutput.textContent = "-- min -- sec";
                 overallValidationMessage.textContent = "Please correct the errors in the input fields.";
+                outputPanel.style.display = "none";
+                errorPanel.style.display = "block";
                 return;
             }
+            outputPanel.style.display = "block";
+            errorPanel.style.display = "none";
             overallValidationMessage.textContent = "";
 
             const rl = parseFloat(rollLengthInput.value);
